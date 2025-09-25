@@ -1,0 +1,529 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chest X-Ray AI Classifier</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        color: white;
+        padding: 40px;
+        text-align: center;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .main-content {
+        padding: 40px;
+      }
+
+      .upload-section {
+        text-align: center;
+        margin-bottom: 40px;
+      }
+
+      .upload-area {
+        border: 3px dashed #3498db;
+        border-radius: 15px;
+        padding: 60px 20px;
+        background: #f8f9fa;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .upload-area:hover {
+        border-color: #2980b9;
+        background: #e3f2fd;
+      }
+
+      .upload-area.dragover {
+        border-color: #27ae60;
+        background: #e8f5e8;
+      }
+
+      .upload-icon {
+        font-size: 4em;
+        color: #3498db;
+        margin-bottom: 20px;
+      }
+
+      .upload-text {
+        font-size: 1.3em;
+        color: #2c3e50;
+        margin-bottom: 15px;
+      }
+
+      .upload-subtext {
+        color: #7f8c8d;
+        font-size: 1em;
+      }
+
+      #fileInput {
+        display: none;
+      }
+
+      .upload-button {
+        background: linear-gradient(135deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 1.1em;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .upload-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+      }
+
+      .upload-button:disabled {
+        background: #bdc3c7;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        padding: 40px;
+      }
+
+      .spinner {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #3498db;
+        border-radius: 50%;
+        width: 50px;
+        height: 50px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .result-section {
+        display: none;
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 30px;
+      }
+
+      .result-normal {
+        border-left: 5px solid #27ae60;
+      }
+
+      .result-pneumonia {
+        border-left: 5px solid #e74c3c;
+      }
+
+      .result-title {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #2c3e50;
+      }
+
+      .result-confidence {
+        font-size: 1.2em;
+        margin-bottom: 20px;
+      }
+
+      .confidence-normal {
+        color: #27ae60;
+      }
+
+      .confidence-pneumonia {
+        color: #e74c3c;
+      }
+
+      .probabilities {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin: 20px 0;
+      }
+
+      .prob-item {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+
+      .prob-label {
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+
+      .prob-value {
+        font-size: 2em;
+        font-weight: bold;
+      }
+
+      .prob-normal {
+        color: #27ae60;
+      }
+
+      .prob-pneumonia {
+        color: #e74c3c;
+      }
+
+      .result-details {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+        font-style: italic;
+        color: #555;
+      }
+
+      .new-analysis {
+        background: #34495e;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 20px;
+        cursor: pointer;
+        margin-top: 20px;
+        transition: all 0.3s ease;
+      }
+
+      .new-analysis:hover {
+        background: #2c3e50;
+        transform: translateY(-2px);
+      }
+
+      .error {
+        background: #e74c3c;
+        color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        display: none;
+      }
+
+      .footer {
+        text-align: center;
+        padding: 20px;
+        color: #7f8c8d;
+        font-size: 0.9em;
+        border-top: 1px solid #ecf0f1;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          border-radius: 15px;
+        }
+
+        .header {
+          padding: 30px 20px;
+        }
+
+        .header h1 {
+          font-size: 2em;
+        }
+
+        .main-content {
+          padding: 30px 20px;
+        }
+
+        .upload-area {
+          padding: 40px 20px;
+        }
+
+        .probabilities {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🫁 Chest X-Ray AI Classifier</h1>
+        <p>Upload your chest X-ray image for AI-powered medical analysis</p>
+      </div>
+
+      <div class="main-content">
+        <div class="upload-section">
+          <div
+            class="upload-area"
+            onclick="document.getElementById('fileInput').click()"
+          >
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Drop your X-ray image here</div>
+            <div class="upload-subtext">or click to browse files</div>
+            <div class="upload-subtext">(PNG, JPG, JPEG - Max 16MB)</div>
+          </div>
+
+          <input type="file" id="fileInput" accept="image/*" />
+          <button
+            class="upload-button"
+            onclick="uploadFile()"
+            id="uploadBtn"
+            disabled
+          >
+            🔍 Analyze X-Ray
+          </button>
+        </div>
+
+        <div class="loading" id="loadingSection">
+          <div class="spinner"></div>
+          <div>Analyzing your X-ray image...</div>
+          <div style="font-size: 0.9em; color: #7f8c8d; margin-top: 10px">
+            This may take a few seconds
+          </div>
+        </div>
+
+        <div class="error" id="errorSection"></div>
+
+        <div class="result-section" id="resultSection">
+          <div class="result-title" id="resultTitle"></div>
+          <div class="result-confidence" id="resultConfidence"></div>
+
+          <div class="probabilities">
+            <div class="prob-item">
+              <div class="prob-label">Normal</div>
+              <div class="prob-value prob-normal" id="normalProb">--</div>
+            </div>
+            <div class="prob-item">
+              <div class="prob-label">Pneumonia</div>
+              <div class="prob-value prob-pneumonia" id="pneumoniaProb">--</div>
+            </div>
+          </div>
+
+          <div class="result-details" id="resultDetails"></div>
+
+          <button class="new-analysis" onclick="resetForm()">
+            🔄 Analyze Another X-Ray
+          </button>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>
+          ⚠️ This tool is for educational purposes only and should not replace
+          professional medical diagnosis.
+        </p>
+        <p>
+          Always consult with a qualified healthcare provider for medical
+          advice.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      let selectedFile = null;
+
+      // File input handling
+      document
+        .getElementById("fileInput")
+        .addEventListener("change", function (e) {
+          selectedFile = e.target.files[0];
+          if (selectedFile) {
+            document.getElementById("uploadBtn").disabled = false;
+            updateUploadArea(`Selected: ${selectedFile.name}`);
+          }
+        });
+
+      // Drag and drop handling
+      const uploadArea = document.querySelector(".upload-area");
+
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+
+      uploadArea.addEventListener("dragleave", () => {
+        uploadArea.classList.remove("dragover");
+      });
+
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          selectedFile = files[0];
+          document.getElementById("uploadBtn").disabled = false;
+          updateUploadArea(`Selected: ${selectedFile.name}`);
+        }
+      });
+
+      function updateUploadArea(text) {
+        const uploadText = document.querySelector(".upload-text");
+        uploadText.textContent = text;
+      }
+
+      function uploadFile() {
+        if (!selectedFile) {
+          showError("Please select a file first");
+          return;
+        }
+
+        // Show loading
+        document.querySelector(".upload-section").style.display = "none";
+        document.getElementById("loadingSection").style.display = "block";
+        document.getElementById("errorSection").style.display = "none";
+        document.getElementById("resultSection").style.display = "none";
+
+        // Create form data
+        const formData = new FormData();
+        formData.append("file", selectedFile);
+
+        // Upload and analyze
+        fetch("/upload", {
+          method: "POST",
+          body: formData,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Backend response:", data); // Debug log
+
+            document.getElementById("loadingSection").style.display = "none";
+
+            if (data.status === "error" || data.error) {
+              showError(data.error || "Analysis failed");
+            } else {
+              showResult(data);
+            }
+          })
+          .catch((error) => {
+            console.error("Upload error:", error);
+            document.getElementById("loadingSection").style.display = "none";
+            showError("Upload failed: " + error.message);
+          });
+      }
+
+      function showResult(data) {
+        const resultSection = document.getElementById("resultSection");
+
+        // Extract prediction type (Normal or Pneumonia)
+        let predictionType = "normal";
+        let predictionText = data.prediction || "Analysis completed";
+
+        if (predictionText.toLowerCase().includes("pneumonia")) {
+          predictionType = "pneumonia";
+        }
+
+        // Update result content
+        document.getElementById(
+          "resultTitle"
+        ).textContent = `Result: ${predictionText}`;
+
+        // Extract confidence number from string like "85.2%"
+        let confidenceValue = data.confidence || "0%";
+        let confidenceNum = parseFloat(confidenceValue.replace("%", "")) || 0;
+
+        document.getElementById(
+          "resultConfidence"
+        ).textContent = `Confidence: ${confidenceValue}`;
+        document.getElementById(
+          "resultConfidence"
+        ).className = `result-confidence confidence-${predictionType}`;
+
+        // Calculate fake probabilities based on confidence
+        let normalProb, pneumoniaProb;
+
+        if (predictionType === "pneumonia") {
+          pneumoniaProb = confidenceNum;
+          normalProb = 100 - confidenceNum;
+        } else {
+          normalProb = confidenceNum;
+          pneumoniaProb = 100 - confidenceNum;
+        }
+
+        // Update probabilities
+        document.getElementById(
+          "normalProb"
+        ).textContent = `${normalProb.toFixed(1)}%`;
+        document.getElementById(
+          "pneumoniaProb"
+        ).textContent = `${pneumoniaProb.toFixed(1)}%`;
+
+        // Update details
+        let details = "AI analysis completed. ";
+        if (predictionType === "pneumonia") {
+          details +=
+            "Possible signs of pneumonia detected. Please consult a healthcare professional for proper diagnosis.";
+        } else {
+          details += "X-ray appears normal. No obvious abnormalities detected.";
+        }
+
+        document.getElementById("resultDetails").textContent = details;
+
+        // Style based on result
+        resultSection.className = `result-section result-${predictionType}`;
+        resultSection.style.display = "block";
+      }
+
+      function showError(message) {
+        const errorSection = document.getElementById("errorSection");
+        errorSection.textContent = message;
+        errorSection.style.display = "block";
+        document.querySelector(".upload-section").style.display = "block";
+      }
+
+      function resetForm() {
+        selectedFile = null;
+        document.getElementById("fileInput").value = "";
+        document.getElementById("uploadBtn").disabled = true;
+        document.querySelector(".upload-text").textContent =
+          "Drop your X-ray image here";
+
+        document.querySelector(".upload-section").style.display = "block";
+        document.getElementById("loadingSection").style.display = "none";
+        document.getElementById("errorSection").style.display = "none";
+        document.getElementById("resultSection").style.display = "none";
+      }
+    </script>
+  </body>
+</html>

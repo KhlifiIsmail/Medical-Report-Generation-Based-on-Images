@@ -1,0 +1,52 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+ENV/
+env/
+.venv/
+
+# Flask instance folder
+instance/
+*.db
+*.sqlite3
+
+# Flask cache/logs
+*.log
+*.pot
+*.mo
+*.pth
+*.pkl
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Environments
+.env
+.env.*
+*.env
+
+
+
+
+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
+xray_classifier_huggingface.pth
+processor.pklxray_classifier_huggingface.pth
