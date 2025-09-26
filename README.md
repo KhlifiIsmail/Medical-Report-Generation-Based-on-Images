@@ -28,6 +28,9 @@ User Upload → Flask Server → Image Processing → AI Model → Medical Analy
 
 ## 🧠 AI Models & Classification Function
 
+<img width="1193" height="717" alt="image" src="https://github.com/user-attachments/assets/bfa0f847-c8f4-43d5-912f-859585881467" />
+
+
 ### Model Architecture: Vision Transformer (ViT)
 
 The system uses a **Vision Transformer** architecture, specifically designed for medical image analysis:
