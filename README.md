@@ -91,6 +91,7 @@ The system supports multiple model backends:
    - Architecture: ViT with medical-specific fine-tuning
 
 2. **Pre-trained Medical Models**:
+   - `lxyuan/vit-xray-pneumonia-classification`
    - `nickmccullum/chest-xray-pneumonia-binary-classification`
    - `keremberke/chest-xray-classification`
    - Automatic fallback if primary model fails
