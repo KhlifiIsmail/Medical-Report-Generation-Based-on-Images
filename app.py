@@ -52,7 +52,7 @@ def upload_file():
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(filepath)
             
-            print(f"🔍 Analyzing X-ray with ViT model: {filename}")
+            print(f"🔬 Analyzing X-ray with ViT model: {filename}")
             
             # Classify the image
             start_time = time.time()
@@ -98,7 +98,7 @@ def api_analyze():
             image_bytes = base64.b64decode(image_data)
             image = Image.open(io.BytesIO(image_bytes))
             
-            print("🔍 API: Analyzing X-ray with ViT model")
+            print("🔬 API: Analyzing X-ray with ViT model")
             
             # Classify
             result = classify_xray_flask(image)
@@ -142,11 +142,21 @@ def model_info():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    print("🚀 Starting Chest X-Ray Classifier Flask App with ViT Model...")
-    print("🤖 Model: Vision Transformer (ViT)")
-    print("📁 Upload folder:", app.config['UPLOAD_FOLDER'])
-    print("🔗 Access at: http://localhost:5000")
-    print("📊 Health check: http://localhost:5000/health")
-    print("🧠 Model info: http://localhost:5000/model-info")
+    # Get environment from ENV variable (defaults to 'dev')
+    env = os.environ.get('ENV', 'dev').lower()
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    if env == 'dev':
+        # Development mode - local
+        print("🚀 Starting Chest X-Ray Classifier Flask App (DEV MODE)")
+        print("🤖 Model: Vision Transformer (ViT)")
+        print("📁 Upload folder:", app.config['UPLOAD_FOLDER'])
+        print("🔗 Access at: http://localhost:5000")
+        print("📊 Health check: http://localhost:5000/health")
+        print("🧠 Model info: http://localhost:5000/model-info")
+        app.run(debug=True, host='0.0.0.0', port=5000)
+    else:
+        # Production mode - Railway/cloud
+        port = int(os.environ.get('PORT', 5000))
+        print("🚀 Starting Chest X-Ray Classifier Flask App (PRODUCTION MODE)")
+        print(f"🌐 Running on port: {port}")
+        app.run(debug=False, host='0.0.0.0', port=port)
