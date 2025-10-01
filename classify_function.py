@@ -20,6 +20,11 @@ def load_pretrained_medical_model():
         
         # Try multiple established medical models in order of reliability
         model_options = [
+             {
+                "name": "lxyuan/vit-xray-pneumonia-classification",
+                "description": "Vision Transformer trained on chest X-rays (97.4% accuracy)",
+                "classes": ["Normal", "Pneumonia"]
+            },
             {
                 "name": "nickmccullum/chest-xray-pneumonia-binary-classification",
                 "description": "Specialized pneumonia detection model",
