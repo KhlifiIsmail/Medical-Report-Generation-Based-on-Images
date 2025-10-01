@@ -1,9 +1,9 @@
 Flask==3.0.0
-torch==2.5.1
-torchvision==0.20.1
-transformers==4.46.0
-Pillow==11.0.0
-requests==2.32.3
-Werkzeug==3.0.1
-gunicorn==23.0.0
-numpy==2.0.2
+torch>=2.5.0
+torchvision>=0.20.0
+transformers>=4.40.0
+Pillow>=11.0.0
+requests>=2.32.0
+Werkzeug>=3.0.0
+gunicorn>=23.0.0
+numpy>=2.0.0
